@@ -1,0 +1,357 @@
+<!doctype html><html lang="he" dir="rtl"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0E1633">
+<title>Call AI</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--brand:#2E50EA;--brand-2:#1B34C0;--soft:rgba(46,80,234,.26);--bg:#EFEFF4;--ink:#141527;--ink2:#8A8CA0;
+ --line:rgba(120,125,160,.16);--green:#2FBF71;--amber:#F5A623;--red:#F0453A;--glass:rgba(255,255,255,.72);
+ --glass-bd:rgba(255,255,255,.65);--sh:0 1px 2px rgba(30,40,120,.05),0 10px 30px rgba(40,60,160,.08);}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0;font-family:"Noto Sans Hebrew",-apple-system,"Segoe UI",Arial,sans-serif;font-size:15px;line-height:1.5;
+ letter-spacing:-.1px;color:var(--ink);direction:rtl;
+ background:radial-gradient(48% 34% at 88% 4%,rgba(46,80,234,.12),transparent 60%),radial-gradient(42% 30% at 4% 98%,rgba(46,80,234,.10),transparent 60%),var(--bg);}
+.app{max-width:520px;margin:0 auto;min-height:100vh;position:relative}
+.screen{padding-bottom:96px}
+.nav{padding:calc(env(safe-area-inset-top) + 12px) 20px 12px;position:sticky;top:0;z-index:5;
+ background:rgba(239,239,244,.72);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.nav .sub{font-size:13px;color:var(--brand);font-weight:600;cursor:pointer}
+.nav h1{margin:2px 0 0;font-size:26px;font-weight:700;letter-spacing:-.5px}
+.wrap{padding:4px 16px 24px}
+.card{background:var(--glass);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--glass-bd);
+ border-radius:18px;box-shadow:var(--sh);margin:12px 0;overflow:hidden}
+.card.pad{padding:16px}
+.sect{font-size:13px;color:var(--ink2);font-weight:600;margin:20px 6px 6px}
+.stats{display:flex;gap:10px}
+.stat{flex:1;background:var(--glass);border:1px solid var(--glass-bd);border-radius:18px;box-shadow:var(--sh);padding:14px 10px;text-align:center;backdrop-filter:blur(16px)}
+.stat .n{font-size:24px;font-weight:800;line-height:1.1}.stat .l{font-size:11px;color:var(--ink2);margin-top:3px;font-weight:500}
+.row{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--line);cursor:pointer}
+.row:last-child{border-bottom:0}
+.av{width:38px;height:38px;border-radius:50%;background:linear-gradient(140deg,var(--brand),var(--brand-2));color:#fff;font-weight:700;display:flex;align-items:center;justify-content:center;font-size:15px;flex:none}
+.row .main{flex:1;min-width:0}.row .t{font-weight:600;font-size:15px}.row .s{font-size:12.5px;color:var(--ink2);margin-top:2px}
+.badge{font-weight:800;font-size:15px;min-width:34px;text-align:center}
+.dot{width:10px;height:10px;border-radius:50%;flex:none}.chev{color:#BFC1D4;font-size:20px;font-weight:700}
+.pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;color:#fff}
+.bar{height:7px;background:rgba(120,125,160,.16);border-radius:4px;overflow:hidden;margin-top:8px}
+.bar>i{display:block;height:100%;border-radius:4px;background:var(--brand)}
+.alert{display:flex;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line)}.alert:last-child{border-bottom:0}
+.alert .ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;flex:none;color:#fff}
+.alert .t{font-weight:600;font-size:14.5px;line-height:1.35}.alert .s{font-size:12.5px;color:var(--ink2);margin-top:3px}
+.tabbar{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;display:flex;background:rgba(245,245,250,.85);
+ backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);border-top:1px solid var(--glass-bd);padding:9px 0 calc(env(safe-area-inset-bottom) + 12px);z-index:10}
+.tab{flex:1;text-align:center;font-size:10.5px;font-weight:600;color:var(--ink2);cursor:pointer}
+.tab .ico{display:block;margin:0 auto 3px;width:26px;height:26px}.tab .ico svg{width:100%;height:100%;display:block}
+.tab:not(.on) .ico{filter:grayscale(1) opacity(.5)}.tab.on{color:var(--brand)}
+.primary{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:14px 0 2px;background:linear-gradient(140deg,var(--brand),var(--brand-2));
+ color:#fff;border:0;border-radius:16px;padding:15px;font:inherit;font-weight:700;font-size:15px;cursor:pointer;box-shadow:0 8px 20px rgba(46,80,234,.28)}
+.field{width:100%;background:#fff;border:1px solid var(--glass-bd);border-radius:14px;padding:14px;color:var(--ink);font:inherit;font-size:16px;margin-bottom:12px}
+textarea.field{min-height:150px;resize:vertical}
+.ring{width:74px;height:74px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#fff;flex:none}
+.report-score{display:flex;align-items:center;gap:16px;padding:18px 16px}
+.dimrow{display:flex;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--line);font-size:14px}
+.dimrow:last-child{border-bottom:0}.dimrow .dn{flex:1;font-weight:500}.dimrow .dv{font-weight:700;min-width:30px;text-align:left}
+.kv{display:flex;justify-content:space-between;padding:9px 16px;border-bottom:1px solid var(--line);font-size:13.5px}
+.kv:last-child{border-bottom:0}.kv .k{color:var(--ink2)}
+.tips{font-size:12.5px;color:var(--ink2);line-height:1.6}
+.critcat{font-size:12px;font-weight:700;color:var(--brand);padding:12px 16px 6px}
+.crit{display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid var(--line);font-size:13px}
+.crit .cl{flex:1}.crit .cv{color:var(--ink2);font-size:12px;margin-left:6px}
+.ci{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:#fff;flex:none}
+.toggle{width:100%;background:#fff;border:1px solid var(--glass-bd);border-radius:14px;padding:13px;font:inherit;font-weight:600;color:var(--brand);cursor:pointer;margin-top:4px}
+.segbtn{flex:1;padding:11px;border-radius:12px;border:1px solid var(--glass-bd);background:#fff;font:inherit;font-weight:600;font-size:14px;color:var(--ink2);cursor:pointer}
+.segbtn.on{background:var(--brand);color:#fff;border-color:var(--brand)}
+.sheet-bg{position:fixed;inset:0;background:rgba(20,21,39,.4);backdrop-filter:blur(3px);z-index:40}
+.sheet{position:fixed;left:0;right:0;bottom:0;max-width:520px;margin:0 auto;background:#F4F4F8;border-radius:24px 24px 0 0;z-index:41;padding:8px 16px calc(env(safe-area-inset-bottom) + 24px);max-height:80%;overflow-y:auto}
+.sheet .grab{width:38px;height:5px;border-radius:3px;background:#CDCED8;margin:8px auto 10px}.sheet h3{font-size:19px;font-weight:700;margin:2px 6px 10px}
+.login{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;
+ background:radial-gradient(50% 40% at 25% 20%,rgba(46,80,234,.32),transparent 60%),radial-gradient(54% 44% at 80% 34%,rgba(46,80,234,.24),transparent 62%),#F0F0F6}
+.login .logo{width:88px;height:88px;margin-bottom:20px}.login h2{font-size:28px;font-weight:700;margin:0}.login p{color:var(--ink2);margin:8px 0 30px}
+.toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:#141527;color:#fff;padding:11px 18px;border-radius:24px;font-size:13px;font-weight:600;z-index:50;opacity:0;transition:opacity .25s;pointer-events:none;max-width:90%}
+.toast.on{opacity:1}
+.rolebar{position:absolute;top:calc(env(safe-area-inset-top) + 12px);left:14px;z-index:8;font-size:11px;color:var(--ink2);background:rgba(255,255,255,.7);border:1px solid var(--glass-bd);border-radius:20px;padding:4px 10px;cursor:pointer}
+.muted{color:var(--ink2);font-size:12.5px}.warn{color:var(--amber);font-weight:700}
+</style></head>
+<body><div class="app" id="app"></div><div class="toast" id="toast"></div>
+<script>
+const API=(localStorage.getItem('callai_api')||'').replace(/\/+$/,'');
+const api=p=>(API||'')+p;
+const BOT_NUMBER=localStorage.getItem('callai_bot')||'073-7801460';
+const VERIFY_BASE=(localStorage.getItem('callai_verify')||API||'').replace(/\/+$/,'');
+const vapi=p=>(VERIFY_BASE||'')+p;
+const ICONS={
+ clients:`<svg viewBox="0 0 24 24" fill="none"><circle cx="9" cy="8.6" r="3.5" fill="var(--soft)"/><path d="M2.8 19.4c0-3.2 2.8-5.6 6.2-5.6s6.2 2.4 6.2 5.6H2.8Z" fill="var(--soft)"/><circle cx="16.9" cy="9.2" r="2.7" fill="var(--brand)"/><path d="M14 19.4c.3-2.5 2.3-4.4 4.9-4.4 1.8 0 3.1 1.9 3.1 4.4H14Z" fill="var(--brand)"/></svg>`,
+ ingest:`<svg viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="6" fill="var(--soft)"/><path d="M12 7v10M7 12h10" stroke="var(--brand)" stroke-width="2" stroke-linecap="round"/></svg>`,
+ command:`<svg viewBox="0 0 24 24" fill="none"><rect x="2.5" y="3.5" width="19" height="17" rx="5.5" fill="var(--soft)"/><rect x="6.2" y="12" width="3" height="5.4" rx="1.5" fill="var(--brand)"/><rect x="10.5" y="9" width="3" height="8.4" rx="1.5" fill="var(--brand)"/><rect x="14.8" y="6.2" width="3" height="11.2" rx="1.5" fill="var(--brand)"/></svg>`,
+ alerts:`<svg viewBox="0 0 24 24" fill="none"><path d="M6.4 16.4c-.6 0-.9-.7-.5-1.2l1.1-1.4V10a5 5 0 0 1 9.9-.9 4 4 0 0 0-3.6 5.9c.2.4.5.7.8 1H6.4Z" fill="var(--soft)"/><circle cx="12" cy="18.6" r="1.9" fill="var(--brand)"/><circle cx="17.6" cy="7.2" r="3" fill="var(--brand)"/></svg>`,
+ discount:`<svg viewBox="0 0 24 24" fill="none"><path d="M4.3 11.4 11.4 4.3H18a1.6 1.6 0 0 1 1.6 1.6v6.6l-7.1 7.1a2 2 0 0 1-2.8 0l-5.4-5.4a2 2 0 0 1 0-2.8Z" fill="var(--soft)"/><circle cx="15.6" cy="8.3" r="1.7" fill="var(--brand)"/><path d="M9 13.4 13.4 9" stroke="var(--brand)" stroke-width="1.7" stroke-linecap="round"/></svg>`,
+ stall:`<svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12.4" r="8.4" fill="var(--soft)"/><path d="M12 7.8v4.6l3 1.9" stroke="var(--brand)" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>`,
+ logo:`<svg viewBox="0 0 24 24" fill="none"><rect x="2" y="2" width="20" height="20" rx="6.2" fill="var(--soft)"/><path d="M8.2 6.2c-.7 0-1.2.6-1.1 1.3.5 4.9 4.4 8.8 9.3 9.3.7.1 1.3-.4 1.3-1.1v-1.9c0-.6-.4-1-.9-1.1l-2.2-.4c-.5-.1-1 .1-1.2.5l-.5.9a8.2 8.2 0 0 1-3.9-3.9l.9-.5c.4-.2.6-.7.5-1.2l-.4-2.2c-.1-.5-.6-.9-1.1-.9H8.2Z" fill="var(--brand)"/></svg>`,
+};
+const A=c=>(String(c).match(/[א-ת]/)||['?'])[0];
+const sc=s=>s>=75?'var(--green)':s>=55?'var(--amber)':'var(--red)';
+const churnC=r=>r==='high'?'var(--red)':r==='medium'?'var(--amber)':'var(--green)';
+const churnHe=r=>r==='high'?'גבוה':r==='medium'?'בינוני':'נמוך';
+const money=n=>'₪'+(n||0).toLocaleString();
+const daysAgo=d=>Math.round((Date.now()-d)/864e5);
+function toast(t){const e=document.getElementById('toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2200);}
+const DAY=864e5;
+const CAT_HE={A1:'מדדים כמותיים',A2:'מבנה ותהליך המכירה',A3:'התנגדויות וסנטימנט',A4:'ציות / הגינות',A5:'סיכון נטישה'};
+const AUDIO_NA=new Set([2,4,5,6,9]);
+function crit35(seed){
+ const P=(id,base)=> (id*7+seed)%10 < base ? 1 : 0;
+ const items=[
+  [1,'A1','יחס דיבור/הקשבה','58%'],[2,'A1','מונולוג ארוך ביותר','47 שנ׳'],[3,'A1','חילופי דוברים','42'],
+  [4,'A1','קצב דיבור (WPM)','168'],[5,'A1','מילות מילוי','3.1/דק׳'],[6,'A1','עצירה אחרי התנגדות','1.4 שנ׳'],
+  [7,'A1','משך שיחה','5.8 דק׳'],[8,'A1','שאלות פתוחות','כן'],[9,'A1','תזמון אזכור מחיר','214 שנ׳'],[10,'A1','שם לקוח / יחס "אנחנו"','1.75'],
+  [11,'A2','פתיחה — סיבה ורלוונטיות','4/5'],[12,'A2','עומק בירור צרכים','3/5'],[13,'A2','זיהוי כאב/צורך','כן'],
+  [14,'A2','הצגת פתרון מותאם','4/5'],[15,'A2','יחס ערך מול פיצ׳רים','1.6'],[16,'A2','סגירה — צעד הבא מפורש','2/5'],
+  [17,'A2','התפלגות זמן בין שלבים','מאוזן'],[18,'A2','מתודולוגיה מזוהה','SPIN'],
+  [19,'A3','אילו התנגדויות עלו','מחיר'],[20,'A3','איכות טיפול בהתנגדות','3/5'],[21,'A3','התנגדות חוזרת','כן'],
+  [22,'A3','סנטימנט לאורך זמן','יורד'],[23,'A3','ירידת אנרגיה','כן'],[24,'A3','סיגנלי קנייה','1'],
+  [25,'A4','הודעת הקלטה','כן'],[26,'A4','גילוי/הגינות','כן'],[27,'A4','בירור נדרש','חלקי'],[28,'A4','אזהרות נדרשות','כן'],[29,'A4','דגל ריסק','ירוק'],
+  [30,'A5','התנגדות לא-פתורה','כן'],[31,'A5','מגמת סנטימנט שלילית','כן'],[32,'A5','אין צעד הבא','כן'],
+  [33,'A5','שיחות מתקצרות','לא'],[34,'A5','זמן תגובה מתארך','כן'],[35,'A5','ציון churn מסכם','74/100'],
+ ];
+ return items.map(([id,cat,label,val])=>({id,cat,label,val,passed:P(id,6)}));
+}
+const REQ_MOGA=[['מוצר','סיב שיבולת שועל',0],['כמות','~25 ק״ג',0],['רמת כשרות','לא חודד',1],['תעודות','COA התבקש',0],['מועד אספקה','לא נמסר',1],['דגימה','לא הוצעה',1]];
+const DEMO=[
+ {id:1,callId:'WA-1',client:'מאפיית אורן',agent:'דני לוי',channel:'whatsapp',score:41,churnRisk:'high',date:Date.now()-11*DAY,headline:'פנייה לסיב שיבולת שועל',summary:'הצעה לא נשלחה, אין מעקב. שלח הודעות גנריות.',dims:[45,40,60,20,40],tips:['בירור טכני לפני מחיר','מעקב הוא הכל','חדד רמת כשרות'],competitor:'גלעם · הצעה זולה יותר',needsFollowup:true,discountPct:18,value:18000,requirements:REQ_MOGA,criteria:crit35(1)},
+ {id:2,callId:'WA-2',client:'תבליני זהב',agent:'דני לוי',channel:'whatsapp',score:88,churnRisk:'low',date:Date.now()-1*DAY,headline:'הזמנה חוזרת',summary:'שיחה מצוינת, נסגרה הזמנה עם דגימה.',dims:[90,86,80,92,95],tips:['שמור על הרמה'],competitor:'',needsFollowup:false,discountPct:3,value:23000,criteria:crit35(9)},
+ {id:3,callId:'PH-3',client:'משקאות תבור',agent:'רועי כהן',channel:'phone',score:61,churnRisk:'medium',date:Date.now()-9*DAY,headline:'שיחת המשך — התלבטות',summary:'התלבטות על מחיר. לא ננעל צעד הבא.',dims:[70,64,58,55,80],tips:['קבע צעד הבא עם תאריך'],competitor:'',needsFollowup:true,discountPct:9,value:42000,criteria:crit35(3)},
+ {id:4,callId:'PH-4',client:'מחלבות הגליל',agent:'מור אבני',channel:'phone',score:58,churnRisk:'high',date:Date.now()-14*DAY,headline:'תלונת אספקה',summary:'לקוח אסטרטגי מאיים לעזוב בגלל איחור אספקה.',dims:[66,60,55,50,70],tips:['טפל בתלונה מיידית','קבע פיצוי/פתרון'],competitor:'פרימה · שוקל מעבר',needsFollowup:true,discountPct:5,value:7500,criteria:crit35(5)},
+ {id:5,callId:'WA-5',client:'קונדיטוריית שקד',agent:'מור אבני',channel:'whatsapp',score:79,churnRisk:'low',date:Date.now()-2*DAY,headline:'הצעת מחיר לתמצית וניל',summary:'בירור טוב, הצעה נשלחה ונקבע מעקב.',dims:[82,80,72,78,85],tips:['הצע cross-sell (צבעי מאכל)'],competitor:'',needsFollowup:false,discountPct:4,value:15000,criteria:crit35(7)},
+ {id:6,callId:'WA-6',client:'טעמים בע״מ',agent:'רועי כהן',channel:'whatsapp',score:47,churnRisk:'high',date:Date.now()-12*DAY,headline:'ליד שהתקרר',summary:'זמני תגובה התארכו, ההודעות התקצרו. לא נקבע צעד הבא.',dims:[55,50,45,40,65],tips:['פנה ביוזמה עם ערך קונקרטי'],competitor:'',needsFollowup:true,discountPct:14,value:9000,criteria:crit35(2)},
+ {id:7,callId:'PH-7',client:'',agent:'רועי כהן',channel:'phone',score:66,churnRisk:'medium',date:Date.now()-2*3600e3,headline:'שיחת טלפון — ליד חדש',summary:'שיחה נכנסת שהוקלטה עם הבוט, ממתינה לשיוך.',dims:[72,64,60,55,80],tips:['שייך ללקוח וקבע צעד הבא'],competitor:'',needsFollowup:true,discountPct:null,value:0,criteria:crit35(4)},
+];
+let RESULTS=DEMO.slice();
+async function loadResults(){ try{const r=await fetch(api('/results'));if(r.ok){const j=await r.json();if(Array.isArray(j)&&j.length)RESULTS=j;}}catch(e){} }
+let state={phone:localStorage.getItem('callai_phone')||'',role:localStorage.getItem('callai_role')||'agent',
+ tab:'clients',client:null,reportId:null,ingestMode:'whatsapp',assignId:null,showCrit:false};
+const loggedIn=()=>!!state.phone;
+function byClient(){const m={};RESULTS.forEach(r=>{const k=r.client||'לא משויך';(m[k]=m[k]||[]).push(r);});return m;}
+function agentClients(){
+ const m=byClient(),names=Object.keys(m).filter(n=>n!=='לא משויך');
+ const un=RESULTS.filter(r=>!r.client);
+ const avg=RESULTS.length?Math.round(RESULTS.reduce((a,b)=>a+b.score,0)/RESULTS.length):0;
+ const atRisk=names.filter(n=>m[n].some(r=>r.churnRisk!=='low')).length;
+ return `<div class="nav"><div class="sub">שלום 👋</div><h1>הלקוחות שלי</h1></div><div class="wrap">
+  <div class="stats"><div class="stat"><div class="n">${names.length}</div><div class="l">לקוחות</div></div>
+   <div class="stat"><div class="n" style="color:${sc(avg)}">${avg}</div><div class="l">ציון ממוצע</div></div>
+   <div class="stat"><div class="n" style="color:${atRisk?'var(--red)':'var(--green)'}">${atRisk}</div><div class="l">בסיכון</div></div></div>
+  <button class="primary" onclick="go('ingest')">＋ הוסף שיחה</button>
+  ${un.length?`<div class="sect">ממתינות לשיוך (${un.length})</div><div class="card">${un.map(r=>`<div class="row">
+    <div class="dot" style="background:${churnC(r.churnRisk)}"></div><div class="main"><div class="t">${r.channel==='phone'?'📞':'💬'} ${r.headline||'שיחה'}</div><div class="s">${new Date(r.date).toLocaleDateString('he-IL')} · ציון ${r.score}</div></div>
+    <span class="pill" style="background:var(--brand);cursor:pointer" onclick="assignFlow(${r.id})">שייך</span></div>`).join('')}</div>`:''}
+  <div class="sect">תיקי לקוחות</div>
+  <div class="card">${names.length?names.map(n=>{const a=m[n];const st=a.some(r=>r.churnRisk==='high')?'var(--red)':a.some(r=>r.churnRisk==='medium')?'var(--amber)':'var(--green)';
+    return `<div class="row" onclick="openClient('${encodeURIComponent(n)}')"><div class="dot" style="background:${st}"></div>
+     <div class="main"><div class="t">${n}</div><div class="s">${a.length} שיחות · ${a[0].headline||''}</div></div><span class="chev">‹</span></div>`;}).join('')
+    :'<div style="padding:16px" class="muted">אין עדיין תיקים. הוסף שיחה כדי להתחיל.</div>'}</div>
+ </div>`;
+}
+function agentThread(){
+ const name=state.client,a=(byClient()[name]||[]).sort((x,y)=>y.date-x.date);
+ return `<div class="nav"><div class="sub" onclick="go('clients')">‹ הלקוחות שלי</div><h1>${name}</h1></div><div class="wrap">
+  <div class="sect">ניתוחים (${a.length})</div>
+  <div class="card">${a.map(r=>`<div class="row" onclick="openReport(${r.id})"><div class="dot" style="background:${churnC(r.churnRisk)}"></div>
+    <div class="main"><div class="t">${r.channel==='phone'?'📞 טלפון':'💬 וואטסאפ'} · ${new Date(r.date).toLocaleDateString('he-IL')}</div><div class="s">${r.headline||''}</div></div>
+    <div class="badge" style="color:${sc(r.score)}">${r.score}</div><span class="chev">‹</span></div>`).join('')}</div></div>`;
+}
+function report(){
+ const r=RESULTS.find(x=>x.id===state.reportId)||RESULTS[0];
+ const DL=['תפיסת מפרט / פתיחה','תקשורת ערך','טיפול בהתנגדויות','סגירה','ציות'];
+ const dims=r.dims&&r.dims.length?r.dims:[0,0,0,0,0];
+ let crit='';
+ if(state.showCrit && r.criteria){
+  const groups={A1:[],A2:[],A3:[],A4:[],A5:[]};
+  r.criteria.forEach(c=>{const na=r.channel==='whatsapp'&&AUDIO_NA.has(c.id);groups[c.cat].push({...c,na});});
+  crit=`<div class="card">`+Object.keys(groups).map(g=>`<div class="critcat">${CAT_HE[g]}</div>`+groups[g].map(c=>{
+    const ic=c.na?['–','#B4B6C6']:c.passed?['✓','var(--green)']:['✗','var(--red)'];
+    return `<div class="crit"><div class="ci" style="background:${ic[1]}">${ic[0]}</div><div class="cl">${c.label}</div><div class="cv">${c.na?'לא רלוונטי':c.val}</div></div>`;}).join('')).join('')+`</div>`;
+ }
+ return `<div class="nav"><div class="sub" onclick="state.showCrit=false;go(state.client?'thread':'clients')">‹ ${r.client||'לקוח'}</div><h1>דו״ח שיחה</h1></div><div class="wrap">
+  <div class="card"><div class="report-score"><div class="ring" style="background:${sc(r.score)}">${r.score}</div>
+   <div><div style="font-weight:600;font-size:17px">${r.headline||''}</div><div class="muted" style="margin-top:3px">${r.summary||''}</div>
+    <div style="margin-top:6px"><span class="pill" style="background:${r.channel==='phone'?'#5B6472':'var(--green)'}">${r.channel==='phone'?'📞 טלפון':'💬 וואטסאפ'}</span></div></div></div></div>
+  <div class="sect">פירוק ציון</div>
+  <div class="card">${dims.map((v,i)=>`<div class="dimrow"><span class="dn">${DL[i]||''}</span>
+    <div class="bar" style="width:90px;margin:0"><i style="width:${v}%;background:${sc(v)}"></i></div><span class="dv" style="color:${sc(v)}">${v}</span></div>`).join('')}</div>
+  ${r.requirements?`<div class="sect">כרטיס דרישות (QA)</div><div class="card">${r.requirements.map(x=>`<div class="kv"><span class="k">${x[0]}</span><span class="${x[2]?'warn':''}">${x[1]}${x[2]?' ⚠':''}</span></div>`).join('')}</div>`:''}
+  ${r.competitor?`<div class="sect">מודיעין תחרותי</div><div class="card pad"><b style="color:var(--red)">${r.competitor}</b></div>`:''}
+  <div class="sect">סיכון נטישה</div><div class="card pad"><span class="pill" style="background:${churnC(r.churnRisk)}">${churnHe(r.churnRisk)}</span></div>
+  ${r.tips&&r.tips.length?`<div class="sect">טיפים לשיפור</div><div class="card pad"><div class="tips">${r.tips.map((t,i)=>`<b>${i+1}.</b> ${t}`).join('<br><br>')}</div></div>`:''}
+  ${r.criteria?`<div class="sect">ניתוח מלא</div><button class="toggle" onclick="state.showCrit=!state.showCrit;render()">${state.showCrit?'הסתר':'הצג'} 35 קריטריונים</button>${crit}`:''}
+ </div>`;
+}
+function ingest(){
+ const m=state.ingestMode;
+ const seg=`<div style="display:flex;gap:8px;margin-bottom:14px">
+   <button class="segbtn ${m==='whatsapp'?'on':''}" onclick="state.ingestMode='whatsapp';render()">💬 וואטסאפ</button>
+   <button class="segbtn ${m==='phone'?'on':''}" onclick="state.ingestMode='phone';render()">📞 שיחת טלפון</button></div>`;
+ let body;
+ if(m==='whatsapp'){
+  body=`<div class="muted" style="margin-bottom:12px">הדבק ייצוא צ׳אט, שייך ללקוח, ושלח לניתוח.</div>
+   <input class="field" id="f-client" placeholder="שם הלקוח (למשל: מאפיית אורן)">
+   <input class="field" id="f-agent" placeholder="שם הסוכן כפי שמופיע בצ׳אט">
+   <textarea class="field" id="f-chat" placeholder="הדבק כאן את ייצוא הצ׳אט מוואטסאפ…"></textarea>
+   <button class="primary" onclick="submitIngest()">שלח לניתוח</button>
+   <div class="muted" style="margin-top:10px">בוואטסאפ → פרטי הצ׳אט → ייצוא צ׳אט → ללא מדיה → הדבק כאן.</div>`;
+ }else{
+  const un=RESULTS.filter(r=>!r.client&&r.channel==='phone');
+  body=`<div class="card pad"><div style="font-weight:600;margin-bottom:8px">איך מקליטים שיחת טלפון</div>
+    <div class="tips">1. חייג ללקוח כרגיל.<br>2. הוסף את הבוט לשיחה: <b>${BOT_NUMBER}</b>.<br>3. בסיום — השיחה תתומלל ותנותח בשרת, ותופיע כאן לשיוך.</div></div>
+    <div class="sect">שיחות ממתינות לשיוך</div>
+    <div class="card">${un.length?un.map(r=>`<div class="row"><div class="dot" style="background:${churnC(r.churnRisk)}"></div>
+      <div class="main"><div class="t">${r.headline||'שיחת טלפון'}</div><div class="s">${new Date(r.date).toLocaleString('he-IL')} · ציון ${r.score}</div></div>
+      <span class="pill" style="background:var(--brand);cursor:pointer" onclick="assignFlow(${r.id})">שייך</span></div>`).join(''):'<div style="padding:16px" class="muted">אין שיחות ממתינות.</div>'}</div>`;
+ }
+ return `<div class="nav"><div class="sub" onclick="go('clients')">‹ חזרה</div><h1>הוסף שיחה</h1></div><div class="wrap">${seg}${body}</div>`;
+}
+async function submitIngest(){
+ const client=(document.getElementById('f-client').value||'').trim();
+ const agent=(document.getElementById('f-agent').value||'').trim();
+ const chat=(document.getElementById('f-chat').value||'').trim();
+ if(!chat){toast('הדבק קודם את תוכן הצ׳אט');return;}
+ toast('שולח לניתוח…');
+ try{const r=await fetch(api('/ingest_whatsapp'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client,agent,chat_text:chat,vertical:'general'})});
+  const j=await r.json();if(j.call_id){toast('נשלח לניתוח ✓');go('clients');}else toast('שגיאה: '+(j.error||'לא ידוע'));}
+ catch(e){toast('אין חיבור לשרת — בדוק כתובת');}
+}
+function assignFlow(id){state.assignId=id;render();}
+function assignOverlay(){
+ if(!state.assignId)return'';
+ const names=Object.keys(byClient()).filter(n=>n!=='לא משויך');
+ return `<div class="sheet-bg" onclick="state.assignId=null;render()"></div><div class="sheet"><div class="grab"></div><h3>שייך שיחה ללקוח</h3>
+  <button class="primary" style="margin-top:0" onclick="newClientAssign()">＋ לקוח חדש</button>
+  <div class="card">${names.map(n=>`<div class="row" onclick="doAssign(state.assignId,'${encodeURIComponent(n)}')"><div class="main"><div class="t">${n}</div></div><span class="chev">‹</span></div>`).join('')||'<div style="padding:14px" class="muted">אין לקוחות עדיין.</div>'}</div></div>`;
+}
+function newClientAssign(){const n=(prompt('שם הלקוח החדש')||'').trim();if(n)doAssign(state.assignId,encodeURIComponent(n));}
+async function doAssign(id,enc){const name=decodeURIComponent(enc);state.assignId=null;
+ try{const r=await fetch(api('/assign'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,client:name})});
+  if(r.ok){toast('שויך ל'+name);await loadResults();}else toast('שגיאה בשיוך');}
+ catch(e){const it=RESULTS.find(x=>x.id===id);if(it)it.client=name;toast('שויך (מקומי)');}
+ render();
+}
+function reps(){const m={};RESULTS.forEach(r=>{if(!r.agent)return;(m[r.agent]=m[r.agent]||[]).push(r);});
+ return Object.entries(m).map(([n,rs])=>{const ds=rs.filter(x=>x.discountPct!=null);
+  return {n,c:rs.length,s:Math.round(rs.reduce((a,b)=>a+b.score,0)/rs.length),
+   d:ds.length?Math.round(ds.reduce((a,b)=>a+b.discountPct,0)/ds.length):0};}).sort((a,b)=>b.s-a.s);}
+function mCommand(){const R=reps();const avg=R.length?Math.round(R.reduce((a,b)=>a+b.s,0)/R.length):0;
+ const atRisk=[...new Set(RESULTS.filter(r=>r.churnRisk!=='low'&&r.client).map(r=>r.client))].length;
+ return `<div class="nav"><div class="sub">חדר בקרה</div><h1>הצוות שלי</h1></div><div class="wrap">
+  <div class="stats"><div class="stat"><div class="n" style="color:${sc(avg)}">${avg}</div><div class="l">ציון צוות</div></div>
+   <div class="stat"><div class="n">${RESULTS.length}</div><div class="l">שיחות</div></div>
+   <div class="stat"><div class="n" style="color:${atRisk?'var(--red)':'var(--green)'}">${atRisk}</div><div class="l">לקוחות בסיכון</div></div></div>
+  <div class="sect">ציון לפי סוכן</div>
+  <div class="card">${R.map(r=>`<div class="row" onclick="openRep('${encodeURIComponent(r.n)}')"><div class="av">${A(r.n)}</div>
+    <div class="main"><div class="t">${r.n}</div><div class="s">${r.c} שיחות · הנחה ממוצעת ${r.d}%</div></div>
+    <div class="badge" style="color:${sc(r.s)}">${r.s}</div><span class="chev">‹</span></div>`).join('')}</div></div>`;
+}
+function mRep(){
+ const name=state.repName,rs=RESULTS.filter(r=>r.agent===name).sort((a,b)=>b.date-a.date);
+ const s=Math.round(rs.reduce((a,b)=>a+b.score,0)/rs.length);
+ const ds=rs.filter(x=>x.discountPct!=null);const d=ds.length?Math.round(ds.reduce((a,b)=>a+b.discountPct,0)/ds.length):0;
+ return `<div class="nav"><div class="sub" onclick="go('command')">‹ הצוות שלי</div><h1>${name}</h1></div><div class="wrap">
+  <div class="stats"><div class="stat"><div class="n" style="color:${sc(s)}">${s}</div><div class="l">ציון</div></div>
+   <div class="stat"><div class="n">${rs.length}</div><div class="l">שיחות</div></div>
+   <div class="stat"><div class="n" style="color:${d>=13?'var(--red)':'var(--amber)'}">${d}%</div><div class="l">הנחה ממוצעת</div></div></div>
+  <div class="sect">שיחות אחרונות</div>
+  <div class="card">${rs.map(r=>`<div class="row" onclick="openReport(${r.id})"><div class="dot" style="background:${churnC(r.churnRisk)}"></div>
+    <div class="main"><div class="t">${r.client||'לא משויך'}</div><div class="s">${new Date(r.date).toLocaleDateString('he-IL')} · ${r.headline||''}</div></div>
+    <div class="badge" style="color:${sc(r.score)}">${r.score}</div></div>`).join('')}</div></div>`;
+}
+function mAlerts(){
+ const al=[];
+ RESULTS.forEach(r=>{
+  if(r.discountPct!=null&&r.discountPct>=13)al.push(['var(--red)','%',`${r.agent} נתן הנחה ${r.discountPct}%`,`מעל הרף · ${r.client||'לא משויך'}`]);
+  if(r.churnRisk==='high')al.push(['var(--red)','!',`לקוח בסיכון: ${r.client||r.headline}`,`${r.headline||''} · ${r.agent||''}`]);
+  if(r.competitor)al.push(['var(--amber)','₪',`מתחרה: ${r.competitor.split('·')[0].trim()}`,`${r.client||''} · ${r.agent||''}`]);
+ });
+ return `<div class="nav"><div class="sub">דורש התערבות</div><h1>התראות</h1></div><div class="wrap">
+  <div class="card">${al.length?al.map(a=>`<div class="alert"><div class="ic" style="background:${a[0]}">${a[1]}</div><div><div class="t">${a[2]}</div><div class="s">${a[3]}</div></div></div>`).join(''):'<div style="padding:16px" class="muted">אין התראות פתוחות 🎉</div>'}</div></div>`;
+}
+function mDiscount(){const R=reps();
+ return `<div class="nav"><div class="sub">רווחיות</div><h1>שחיקת מחירים</h1></div><div class="wrap"><div class="card">${R.slice().sort((a,b)=>b.d-a.d).map(r=>{
+  const t=r.d>=13?['קונה עסקאות','var(--red)']:r.d<=5?['מגן על המחיר','var(--green)']:['בינוני','var(--amber)'];
+  return `<div class="row"><div class="av">${A(r.n)}</div><div class="main"><div class="t">${r.n}</div><div class="s">הנחה ממוצעת: ${r.d}%</div></div><span class="pill" style="background:${t[1]}">${t[0]}</span></div>`;}).join('')}</div></div>`;
+}
+function mStall(){const now=Date.now();
+ const s=RESULTS.filter(r=>r.needsFollowup&&(now-r.date)>7*DAY&&r.client).map(r=>({c:r.client,d:daysAgo(r.date),v:r.value||0,a:r.agent})).sort((x,y)=>y.v-x.v);
+ const tot=s.reduce((a,b)=>a+b.v,0);
+ return `<div class="nav"><div class="sub">מעל 7 ימים ללא מעקב</div><h1>עסקאות תקועות</h1></div><div class="wrap">
+  <div class="card pad" style="text-align:center;background:linear-gradient(135deg,var(--red),#C62A20);color:#fff;border:0">
+   <div style="font-size:13px;opacity:.92">בסיכון לאבד</div><div style="font-size:30px;font-weight:800">${money(tot)}</div><div style="font-size:12px;opacity:.92">${s.length} הצעות ללא מעקב</div></div>
+  <div class="card">${s.length?s.map(x=>`<div class="row"><div class="dot" style="background:var(--red)"></div>
+    <div class="main"><div class="t">${x.c}</div><div class="s">${x.d} ימים ללא מעקב · ${x.a}</div></div><div style="font-weight:700">${money(x.v)}</div></div>`).join(''):'<div style="padding:16px" class="muted">אין עסקאות תקועות 🎉</div>'}</div></div>`;
+}
+const AGENT_TABS=[['clients','לקוחות'],['ingest','הוסף']];
+const MGR_TABS=[['command','בקרה'],['alerts','התראות'],['discount','שחיקה'],['stall','תקועות']];
+const R={clients:agentClients,thread:agentThread,report:report,ingest:ingest,command:mCommand,alerts:mAlerts,discount:mDiscount,stall:mStall,rep:mRep};
+function go(t){state.tab=t;render();}
+function openClient(e){state.client=decodeURIComponent(e);state.tab='thread';render();}
+function openReport(id){state.reportId=id;state.showCrit=false;state.tab='report';render();}
+function openRep(e){state.repName=decodeURIComponent(e);state.tab='rep';render();}
+function switchRole(){state.role=state.role==='manager'?'agent':'manager';localStorage.setItem('callai_role',state.role);state.tab=state.role==='manager'?'command':'clients';render();}
+let lg={step:'phone',bot:'',nonce:'',phone:''};
+function msg(t){const e=document.getElementById('lg-msg');if(e)e.textContent=t||'';}
+function loginScreen(){
+ if(lg.step==='verify'){
+  return `<div class="login"><div class="logo">${ICONS.logo}</div><h2>אימות זהות</h2>
+   <p>חייג מהמספר שלך אל המספר הבא כדי לאמת שזה אתה — בלי SMS:<br><b style="font-size:22px;color:var(--brand)">${lg.bot}</b></p>
+   <a class="primary" style="max-width:320px;text-decoration:none" href="tel:${lg.bot.replace(/\D/g,'')}">📞 חייג לאימות</a>
+   <button class="toggle" style="max-width:320px;margin-top:12px" onclick="checkVerify()">חייגתי — אמת אותי</button>
+   <div class="muted" id="lg-msg" style="margin-top:14px"></div>
+   <div class="muted" style="margin-top:8px;cursor:pointer" onclick="lg.step='phone';render()">‹ החלף מספר</div></div>`;
+ }
+ return `<div class="login"><div class="logo">${ICONS.logo}</div><h2>Call AI</h2><p>מודיעין שיחות מכירה</p>
+  <input class="field" id="lg-phone" placeholder="מספר טלפון" inputmode="tel" style="max-width:320px">
+  <button class="primary" style="max-width:320px" onclick="startLogin()">כניסה</button>
+  <div class="muted" id="lg-msg" style="margin-top:14px"></div></div>`;
+}
+async function startLogin(){
+ const p=(document.getElementById('lg-phone').value||'').replace(/\D/g,'');
+ if(p.length<9){toast('הזן מספר תקין');return;}
+ lg.phone=p; msg('בודק הרשאה…');
+ try{
+  const ap=await fetch(api('/is_approved?phone='+p)); const aj=await ap.json();
+  if(!aj.approved){ msg('המספר אינו מאושר. פנה למנהל כדי לקבל גישה.'); return; }
+  const r=await fetch(vapi('/start_call_verification'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:p})});
+  const j=await r.json();
+  if(j.bot_number){ lg.bot=j.bot_number; lg.nonce=j.nonce; lg.step='verify'; render(); }
+  else msg('שגיאה בהתחלת האימות. נסה שוב.');
+ }catch(e){ demoLogin(p); }
+}
+async function checkVerify(){
+ msg('בודק אם זוהתה שיחה…');
+ try{
+  const r=await fetch(vapi('/check_call_verification'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({phone:lg.phone,nonce:lg.nonce})});
+  const j=await r.json();
+  if(j.status==='verified'&&(j.jwt||j.token)){ finishLogin(lg.phone, j.jwt||j.token); }
+  else msg('עדיין לא זוהתה שיחה מהמספר שלך. חייג ונסה שוב.');
+ }catch(e){ msg('אין חיבור לשרת האימות.'); }
+}
+function demoLogin(p){ toast('מצב תצוגה (ללא שרת)'); finishLogin(p, ''); }
+async function finishLogin(p, token){
+ state.phone=p; localStorage.setItem('callai_phone',p);
+ if(token) localStorage.setItem('callai_token',token);
+ try{const r=await fetch(api('/role?phone='+p));if(r.ok){const j=await r.json();state.role=j.isManager?'manager':'agent';}}catch(e){}
+ localStorage.setItem('callai_role',state.role); state.tab=state.role==='manager'?'command':'clients';
+ lg.step='phone'; await loadResults(); render();
+}
+function render(){const app=document.getElementById('app');
+ if(!loggedIn()){app.innerHTML=loginScreen();return;}
+ const tabs=state.role==='manager'?MGR_TABS:AGENT_TABS;
+ const active=tabs.some(t=>t[0]===state.tab)?state.tab:tabs[0][0];
+ const body=(R[state.tab]||R[tabs[0][0]])();
+ const tb=`<div class="tabbar">${tabs.map(t=>`<div class="tab ${t[0]===active?'on':''}" onclick="go('${t[0]}')"><span class="ico">${ICONS[t[0]]}</span>${t[1]}</div>`).join('')}</div>`;
+ app.innerHTML=`<div class="rolebar" onclick="switchRole()">תצוגה: ${state.role==='manager'?'מנהל':'סוכן'} ⇄</div><div class="screen">${body}</div>${tb}${assignOverlay()}`;
+}
+(async function(){if(loggedIn())await loadResults();render();})();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script></body></html>

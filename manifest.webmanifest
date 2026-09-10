@@ -1,0 +1,15 @@
+{
+  "name": "Call AI — מודיעין שיחות מכירה",
+  "short_name": "Call AI",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0E1633",
+  "theme_color": "#0E1633",
+  "lang": "he",
+  "dir": "rtl",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
