@@ -257,10 +257,14 @@ function mRep(){
  const name=state.repName,rs=RESULTS.filter(r=>r.agent===name).sort((a,b)=>b.date-a.date);
  const s=Math.round(rs.reduce((a,b)=>a+b.score,0)/rs.length);
  const ds=rs.filter(x=>x.discountPct!=null);const d=ds.length?Math.round(ds.reduce((a,b)=>a+b.discountPct,0)/ds.length):0;
+ const DL=['תפיסת מפרט','תקשורת ערך','טיפול בהתנגדויות','סגירה','ציות'];
+ const avgDim=i=>{const v=rs.filter(r=>r.dims&&r.dims.length).map(r=>r.dims[i]);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):0;};
  return `<div class="nav"><div class="sub" onclick="go('command')">‹ הצוות שלי</div><h1>${name}</h1></div><div class="wrap">
   <div class="stats"><div class="stat"><div class="n" style="color:${sc(s)}">${s}</div><div class="l">ציון</div></div>
    <div class="stat"><div class="n">${rs.length}</div><div class="l">שיחות</div></div>
    <div class="stat"><div class="n" style="color:${d>=13?'var(--red)':'var(--amber)'}">${d}%</div><div class="l">הנחה ממוצעת</div></div></div>
+  <div class="sect">חוזקות וחולשות</div>
+  <div class="card pad">${DL.map((l,i)=>{const v=avgDim(i);return `<div style="margin:9px 0"><div style="display:flex;justify-content:space-between;font-size:14px;font-weight:500"><span>${l}</span><span style="font-weight:700;color:${sc(v)}">${v}</span></div><div class="bar"><i style="width:${v}%;background:${sc(v)}"></i></div></div>`;}).join('')}</div>
   <div class="sect">שיחות אחרונות</div>
   <div class="card">${rs.map(r=>`<div class="row" onclick="openReport(${r.id})"><div class="dot" style="background:${churnC(r.churnRisk)}"></div>
     <div class="main"><div class="t">${r.client||'לא משויך'}</div><div class="s">${new Date(r.date).toLocaleDateString('he-IL')} · ${r.headline||''}</div></div>
