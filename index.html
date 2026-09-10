@@ -199,7 +199,6 @@ function ingest(){
  if(m==='whatsapp'){
   body=`<div class="muted" style="margin-bottom:12px">הדבק ייצוא צ׳אט, שייך ללקוח, ושלח לניתוח.</div>
    <input class="field" id="f-client" placeholder="שם הלקוח (למשל: מאפיית אורן)">
-   <input class="field" id="f-agent" placeholder="שם הסוכן כפי שמופיע בצ׳אט">
    <textarea class="field" id="f-chat" placeholder="הדבק כאן את ייצוא הצ׳אט מוואטסאפ…"></textarea>
    <button class="primary" onclick="submitIngest()">שלח לניתוח</button>
    <div class="muted" style="margin-top:10px">בוואטסאפ → פרטי הצ׳אט → ייצוא צ׳אט → ללא מדיה → הדבק כאן.</div>`;
@@ -216,11 +215,10 @@ function ingest(){
 }
 async function submitIngest(){
  const client=(document.getElementById('f-client').value||'').trim();
- const agent=(document.getElementById('f-agent').value||'').trim();
  const chat=(document.getElementById('f-chat').value||'').trim();
  if(!chat){toast('הדבק קודם את תוכן הצ׳אט');return;}
  toast('שולח לניתוח…');
- try{const r=await fetch(api('/ingest_whatsapp'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client,agent,chat_text:chat,vertical:'general'})});
+ try{const r=await fetch(api('/ingest_whatsapp'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({client,agent:'',chat_text:chat,vertical:'general'})});
   const j=await r.json();if(j.call_id){toast('נשלח לניתוח ✓');go('clients');}else toast('שגיאה: '+(j.error||'לא ידוע'));}
  catch(e){toast('אין חיבור לשרת — בדוק כתובת');}
 }
@@ -235,9 +233,9 @@ function assignOverlay(){
 }
 function assignNew(){const n=(document.getElementById('newcli').value||'').trim();if(!n){toast('הזן שם לקוח');return;}doAssign(encodeURIComponent(n));}
 async function doAssign(enc){const name=decodeURIComponent(enc);const id=state.assignId;state.assignId=null;
- try{const r=await fetch(api('/assign'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,client:name})});
-  if(r.ok){await loadResults();}else toast('שגיאה בשיוך');}
- catch(e){const it=RESULTS.find(x=>x.id===id);if(it)it.client=name;}
+ let ok=false;
+ try{const r=await fetch(api('/assign'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,client:name})});ok=r.ok;if(ok)await loadResults();}catch(e){}
+ if(!ok){const it=RESULTS.find(x=>x.id===id);if(it)it.client=name;}
  toast('שויך ל'+name);state.client=name;state.tab='thread';render();
 }
 function reps(){const m={};RESULTS.forEach(r=>{if(!r.agent)return;(m[r.agent]=m[r.agent]||[]).push(r);});
