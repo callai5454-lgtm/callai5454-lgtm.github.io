@@ -75,6 +75,7 @@ textarea.field{min-height:150px;resize:vertical}
 .toast.on{opacity:1}
 .rolebar{position:absolute;top:calc(env(safe-area-inset-top) + 12px);left:14px;z-index:8;font-size:11px;color:var(--ink2);background:rgba(255,255,255,.7);border:1px solid var(--glass-bd);border-radius:20px;padding:4px 10px;cursor:pointer}
 .muted{color:var(--ink2);font-size:12.5px}.warn{color:var(--amber);font-weight:700}
+.fab{position:fixed;left:16px;bottom:calc(env(safe-area-inset-bottom) + 80px);width:56px;height:56px;border-radius:50%;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 8px 22px rgba(47,191,113,.45);z-index:20;text-decoration:none}
 </style></head>
 <body><div class="app" id="app"></div><div class="toast" id="toast"></div>
 <script>
@@ -224,19 +225,20 @@ async function submitIngest(){
  catch(e){toast('אין חיבור לשרת — בדוק כתובת');}
 }
 function assignFlow(id){state.assignId=id;render();}
+function closeAssign(){state.assignId=null;render();}
 function assignOverlay(){
  if(!state.assignId)return'';
  const names=Object.keys(byClient()).filter(n=>n!=='לא משויך');
- return `<div class="sheet-bg" onclick="state.assignId=null;render()"></div><div class="sheet"><div class="grab"></div><h3>שייך שיחה ללקוח</h3>
-  <button class="primary" style="margin-top:0" onclick="newClientAssign()">＋ לקוח חדש</button>
-  <div class="card">${names.map(n=>`<div class="row" onclick="doAssign(state.assignId,'${encodeURIComponent(n)}')"><div class="main"><div class="t">${n}</div></div><span class="chev">‹</span></div>`).join('')||'<div style="padding:14px" class="muted">אין לקוחות עדיין.</div>'}</div></div>`;
+ return `<div class="sheet-bg" onclick="closeAssign()"></div><div class="sheet"><div class="grab"></div><h3>שייך שיחה ללקוח</h3>
+  <div style="display:flex;gap:8px;margin:0 6px 12px"><input class="field" id="newcli" placeholder="שם לקוח חדש" style="margin:0"><button class="primary" style="margin:0;width:auto;padding:0 20px" onclick="assignNew()">הוסף</button></div>
+  ${names.length?`<div class="muted" style="margin:0 6px 6px">או בחר לקוח קיים:</div><div class="card">${names.map(n=>`<div class="row" onclick="doAssign('${encodeURIComponent(n)}')"><div class="main"><div class="t">${n}</div></div><span class="chev">‹</span></div>`).join('')}</div>`:''}</div>`;
 }
-function newClientAssign(){const n=(prompt('שם הלקוח החדש')||'').trim();if(n)doAssign(state.assignId,encodeURIComponent(n));}
-async function doAssign(id,enc){const name=decodeURIComponent(enc);state.assignId=null;
+function assignNew(){const n=(document.getElementById('newcli').value||'').trim();if(!n){toast('הזן שם לקוח');return;}doAssign(encodeURIComponent(n));}
+async function doAssign(enc){const name=decodeURIComponent(enc);const id=state.assignId;state.assignId=null;
  try{const r=await fetch(api('/assign'),{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,client:name})});
-  if(r.ok){toast('שויך ל'+name);await loadResults();}else toast('שגיאה בשיוך');}
- catch(e){const it=RESULTS.find(x=>x.id===id);if(it)it.client=name;toast('שויך (מקומי)');}
- render();
+  if(r.ok){await loadResults();}else toast('שגיאה בשיוך');}
+ catch(e){const it=RESULTS.find(x=>x.id===id);if(it)it.client=name;}
+ toast('שויך ל'+name);state.client=name;state.tab='thread';render();
 }
 function reps(){const m={};RESULTS.forEach(r=>{if(!r.agent)return;(m[r.agent]=m[r.agent]||[]).push(r);});
  return Object.entries(m).map(([n,rs])=>{const ds=rs.filter(x=>x.discountPct!=null);
@@ -350,8 +352,17 @@ function render(){const app=document.getElementById('app');
  const active=tabs.some(t=>t[0]===state.tab)?state.tab:tabs[0][0];
  const body=(R[state.tab]||R[tabs[0][0]])();
  const tb=`<div class="tabbar">${tabs.map(t=>`<div class="tab ${t[0]===active?'on':''}" onclick="go('${t[0]}')"><span class="ico">${ICONS[t[0]]}</span>${t[1]}</div>`).join('')}</div>`;
- app.innerHTML=`<div class="rolebar" onclick="switchRole()">תצוגה: ${state.role==='manager'?'מנהל':'סוכן'} ⇄</div><div class="screen">${body}</div>${tb}${assignOverlay()}`;
+ const fab=state.role==='agent'?`<a class="fab" href="tel:${BOT_NUMBER.replace(/\D/g,'')}" aria-label="חייג לבוט">📞</a>`:'';
+ app.innerHTML=`<div class="rolebar" onclick="switchRole()">תצוגה: ${state.role==='manager'?'מנהל':'סוכן'} ⇄</div><div class="screen">${body}</div>${tb}${fab}${assignOverlay()}`;
 }
-(async function(){if(loggedIn())await loadResults();render();})();
+function appBack(){
+ if(state.assignId){state.assignId=null;return;}
+ if(state.tab==='report'){state.showCrit=false;state.tab=state.client?'thread':'clients';return;}
+ if(state.tab==='thread'){state.tab='clients';return;}
+ if(state.tab==='ingest'){state.tab='clients';return;}
+ if(state.tab==='rep'){state.tab='command';return;}
+}
+window.addEventListener('popstate',function(){appBack();render();history.pushState({},'');});
+(async function(){if(loggedIn())await loadResults();render();history.pushState({},'');})();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script></body></html>
