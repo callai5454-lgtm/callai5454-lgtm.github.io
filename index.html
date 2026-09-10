@@ -158,7 +158,7 @@ function agentClients(){
 }
 function agentThread(){
  const name=state.client,a=(byClient()[name]||[]).sort((x,y)=>y.date-x.date);
- return `<div class="nav"><div class="sub" onclick="go('clients')">‹ הלקוחות שלי</div><h1>${name}</h1></div><div class="wrap">
+ return `<div class="nav"><div class="sub" onclick="go(state.from||'clients')">‹ חזרה</div><h1>${name}</h1></div><div class="wrap">
   <div class="sect">ניתוחים (${a.length})</div>
   <div class="card">${a.map(r=>`<div class="row" onclick="openReport(${r.id})"><div class="dot" style="background:${churnC(r.churnRisk)}"></div>
     <div class="main"><div class="t">${r.channel==='phone'?'📞 טלפון':'💬 וואטסאפ'} · ${new Date(r.date).toLocaleDateString('he-IL')}</div><div class="s">${r.headline||''}</div></div>
@@ -247,7 +247,7 @@ function mCommand(){const R=reps();const avg=R.length?Math.round(R.reduce((a,b)=
  return `<div class="nav"><div class="sub">חדר בקרה</div><h1>הצוות שלי</h1></div><div class="wrap">
   <div class="stats"><div class="stat"><div class="n" style="color:${sc(avg)}">${avg}</div><div class="l">ציון צוות</div></div>
    <div class="stat"><div class="n">${RESULTS.length}</div><div class="l">שיחות</div></div>
-   <div class="stat"><div class="n" style="color:${atRisk?'var(--red)':'var(--green)'}">${atRisk}</div><div class="l">לקוחות בסיכון</div></div></div>
+   <div class="stat" onclick="go('atrisk')" style="cursor:pointer"><div class="n" style="color:${atRisk?'var(--red)':'var(--green)'}">${atRisk}</div><div class="l">בסיכון ›</div></div></div>
   <div class="sect">ציון לפי סוכן</div>
   <div class="card">${R.map(r=>`<div class="row" onclick="openRep('${encodeURIComponent(r.n)}')"><div class="av">${A(r.n)}</div>
     <div class="main"><div class="t">${r.n}</div><div class="s">${r.c} שיחות · הנחה ממוצעת ${r.d}%</div></div>
@@ -265,6 +265,8 @@ function mRep(){
    <div class="stat"><div class="n" style="color:${d>=13?'var(--red)':'var(--amber)'}">${d}%</div><div class="l">הנחה ממוצעת</div></div></div>
   <div class="sect">חוזקות וחולשות</div>
   <div class="card pad">${DL.map((l,i)=>{const v=avgDim(i);return `<div style="margin:9px 0"><div style="display:flex;justify-content:space-between;font-size:14px;font-weight:500"><span>${l}</span><span style="font-weight:700;color:${sc(v)}">${v}</span></div><div class="bar"><i style="width:${v}%;background:${sc(v)}"></i></div></div>`;}).join('')}</div>
+  <div class="sect">תיקי הלקוחות שלו</div>
+  <div class="card">${(()=>{const cls={};rs.forEach(r=>{if(r.client)(cls[r.client]=cls[r.client]||[]).push(r);});const cn=Object.keys(cls);return cn.length?cn.map(c=>{const a=cls[c];const st=a.some(r=>r.churnRisk==='high')?'var(--red)':a.some(r=>r.churnRisk==='medium')?'var(--amber)':'var(--green)';return `<div class="row" onclick="openClient('${encodeURIComponent(c)}')"><div class="dot" style="background:${st}"></div><div class="main"><div class="t">${c}</div><div class="s">${a.length} שיחות</div></div><span class="chev">‹</span></div>`;}).join(''):'<div style="padding:14px" class="muted">אין עדיין לקוחות משויכים</div>';})()}</div>
   <div class="sect">שיחות אחרונות</div>
   <div class="card">${rs.map(r=>`<div class="row" onclick="openReport(${r.id})"><div class="dot" style="background:${churnC(r.churnRisk)}"></div>
     <div class="main"><div class="t">${r.client||'לא משויך'}</div><div class="s">${new Date(r.date).toLocaleDateString('he-IL')} · ${r.headline||''}</div></div>
@@ -294,11 +296,21 @@ function mStall(){const now=Date.now();
   <div class="card">${s.length?s.map(x=>`<div class="row"><div class="dot" style="background:var(--red)"></div>
     <div class="main"><div class="t">${x.c}</div><div class="s">${x.d} ימים ללא מעקב · ${x.a}</div></div><div style="font-weight:700">${money(x.v)}</div></div>`).join(''):'<div style="padding:16px" class="muted">אין עסקאות תקועות 🎉</div>'}</div></div>`;
 }
+function riskReasons(rs){const rz=[];if(rs.some(r=>r.churnRisk==='high'))rz.push('נטישה גבוהה');else if(rs.some(r=>r.churnRisk==='medium'))rz.push('נטישה בינונית');if(rs.some(r=>r.competitor))rz.push('מתחרה עלה');if(rs.some(r=>r.needsFollowup))rz.push('ממתין לצעד הבא');const avg=Math.round(rs.reduce((a,b)=>a+b.score,0)/rs.length);if(avg<55)rz.push('ציון נמוך');return rz;}
+function mAtRisk(){const m=byClient();const names=Object.keys(m).filter(n=>n!=='לא משויך'&&m[n].some(r=>r.churnRisk!=='low'||r.competitor||r.needsFollowup));
+ return `<div class="nav"><div class="sub" onclick="go('command')">‹ חדר בקרה</div><h1>לקוחות בסיכון</h1></div><div class="wrap">
+  <div class="muted" style="margin:0 6px 10px">${names.length} לקוחות דורשים תשומת לב — לחץ לצפייה בניתוחי השיחות.</div>
+  ${names.map(n=>{const rs=m[n];const rz=riskReasons(rs);const st=rs.some(r=>r.churnRisk==='high')?'var(--red)':'var(--amber)';
+   return `<div class="card"><div class="row" onclick="openClient('${encodeURIComponent(n)}')"><div class="dot" style="background:${st}"></div>
+    <div class="main"><div class="t">${n}</div><div class="s">${rs.length} שיחות · ${rs[0].agent||''}</div></div><span class="chev">‹</span></div>
+    <div style="padding:0 16px 12px;display:flex;flex-wrap:wrap;gap:6px">${rz.map(z=>`<span class="pill" style="background:${z.includes('גבוה')?'var(--red)':z.includes('מתחרה')?'var(--amber)':'#5B6472'}">${z}</span>`).join('')}</div></div>`;}).join('')||'<div class="card pad"><div class="muted">אין לקוחות בסיכון 🎉</div></div>'}
+ </div>`;
+}
 const AGENT_TABS=[['clients','לקוחות'],['ingest','הוסף']];
 const MGR_TABS=[['command','בקרה'],['alerts','התראות'],['discount','שחיקה'],['stall','תקועות']];
-const R={clients:agentClients,thread:agentThread,report:report,ingest:ingest,command:mCommand,alerts:mAlerts,discount:mDiscount,stall:mStall,rep:mRep};
+const R={clients:agentClients,thread:agentThread,report:report,ingest:ingest,command:mCommand,alerts:mAlerts,discount:mDiscount,stall:mStall,rep:mRep,atrisk:mAtRisk};
 function go(t){state.tab=t;render();}
-function openClient(e){state.client=decodeURIComponent(e);state.tab='thread';render();}
+function openClient(e){state.from=state.tab;state.client=decodeURIComponent(e);state.tab='thread';render();}
 function openReport(id){state.reportId=id;state.showCrit=false;state.tab='report';render();}
 function openRep(e){state.repName=decodeURIComponent(e);state.tab='rep';render();}
 function switchRole(){state.role=state.role==='manager'?'agent':'manager';localStorage.setItem('callai_role',state.role);state.tab=state.role==='manager'?'command':'clients';render();}
@@ -360,7 +372,7 @@ function render(){const app=document.getElementById('app');
 function appBack(){
  if(state.assignId){state.assignId=null;return;}
  if(state.tab==='report'){state.showCrit=false;state.tab=state.client?'thread':'clients';return;}
- if(state.tab==='thread'){state.tab='clients';return;}
+ if(state.tab==='thread'){state.tab=state.from||'clients';return;}
  if(state.tab==='ingest'){state.tab='clients';return;}
  if(state.tab==='rep'){state.tab='command';return;}
 }
